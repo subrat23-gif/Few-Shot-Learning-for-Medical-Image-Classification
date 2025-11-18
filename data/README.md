@@ -45,3 +45,22 @@ The project aggregates data from four major sources:
 ```bash
 git clone [https://github.com/YOUR_USERNAME/Hybrid-FSL-ChestXRay.git](https://github.com/YOUR_USERNAME/Hybrid-FSL-ChestXRay.git)
 cd Hybrid-FSL-ChestXRay
+
+### 2. Install Dependencies
+'''bash
+pip install -r requirements.txt
+
+### 3. Data Setup
+'''bash
+Clean and standardise images
+python src/preprocess.py
+
+### Results
+
+| Model               | Metric     | Backbone Weights       | Accuracy (Novel Classes) |
+|--------------------|------------|-------------------------|---------------------------|
+| Prototypical Net   | Euclidean  | ImageNet                | 61.43% ± 0.65%            |
+| Hybrid ProtoNet    | Cosine     | Imbalanced-Pretrained  | 91.6% (Target)             |
+
+
+
