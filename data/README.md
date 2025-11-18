@@ -1,8 +1,3 @@
-# Hybrid Few-Shot Learning for Chest X-Ray Classification
-
-![Python](https://img.shields.io/badge/Python-3.8%2B-blue)
-![PyTorch](https://img.shields.io/badge/PyTorch-1.10%2B-orange)
-![License](https://img.shields.io/badge/License-MIT-green)
 
 ## 📌 Abstract
 Medical imaging datasets often suffer from severe class imbalance and scarcity of data for rare diseases (e.g., COVID-19, Tuberculosis). Standard Deep Learning models struggle with these "tail" classes. 
