@@ -1,61 +1,68 @@
+# Hybrid Few-Shot Learning for Chest X-Ray Classification
 
-## 📌 Abstract
-Medical imaging datasets often suffer from severe class imbalance and scarcity of data for rare diseases (e.g., COVID-19, Tuberculosis). Standard Deep Learning models struggle with these "tail" classes. 
+![Python](https://img.shields.io/badge/Python-3.8%2B-blue)
+![PyTorch](https://img.shields.io/badge/PyTorch-1.10%2B-orange)
+![License](https://img.shields.io/badge/License-MIT-green)
 
-This project proposes a **Hybrid Few-Shot Learning (FSL)** framework. Instead of training Prototypical Networks from scratch or using generic ImageNet weights, we first train a DenseNet121 "specialist" on a large, imbalanced medical dataset. We then surgically extract the backbone and transplant it into a Prototypical Network to perform Few-Shot classification on novel classes using Cosine Similarity.
+Abstract
 
-## 🚀 Key Features
-1.  **Imbalance-Aware Baseline:** A `DenseNet121` trained with `WeightedRandomSampler` to handle severe class imbalance (Normal: 72k images vs Tuberculosis: 560 images).
-2.  **Domain-Specific Transfer:** Transfers weights from the Chest X-ray specialist model to the FSL learner, rather than using generic ImageNet weights.
-3.  **Metric Learning Upgrade:** Utilizes **Cosine Similarity** (instead of Euclidean distance) in the Prototypical Loss function for better high-dimensional feature clustering.
-4.  **Robust Preprocessing:** Standardized pipeline for NIH, RSNA, and Kaggle datasets using `TorchXRayVision` normalization standards.
+Medical imaging datasets often suffer from severe class imbalance and limited samples for rare diseases. Conventional supervised models trained on large datasets fail to generalize to these “tail” classes.
+This project introduces a Hybrid Few-Shot Learning (FSL) framework that combines:
+- A DenseNet121 imbalance-aware specialist model, trained on large-scale chest X-ray datasets.
+- A Prototypical Network with Cosine Similarity, using the specialist backbone to classify novel diseases such as COVID-19 and Tuberculosis from very few labeled   samples.
+- This approach leverages domain-specific transfer learning instead of relying on generic ImageNet features.
 
-## 📊 Methodology & Architecture
+Key Features
+- Imbalance-Aware Training: Uses WeightedRandomSampler to train DenseNet121 on skewed medical datasets.
+- Domain-Specific Transfer: Transfers radiology-specific features learned during supervised training to the FSL model.
+- Cosine Metric Learning: More stable than Euclidean in high-dimensional embeddings.
+- Unified Preprocessing Pipeline: Normalization and augmentation consistent with TorchXRayVision standards.
 
-### Stage 1: The Specialist (Supervised Learning)
-We train a standard classifier on the "Base" classes (Normal, Pneumonia).
-* **Architecture:** DenseNet121 (modified head).
-* **Strategy:** Weighted Random Sampling to penalize majority classes.
-* **Result:** ~86% F1-Score (Weighted).
+Methodology
+Stage 1: Specialist Model (Supervised Learning)
+Backbone: DenseNet121
+Loss Strategy: Class-weighted sampling
+Output: Robust feature extractor trained on large base classes
+Performance: ~86% Weighted F1-Score
 
-### Stage 2: The Transplant (Weight Extraction)
-We strip the classification head from the Stage 1 model and freeze the feature extractor (Backbone). This backbone has learned specific radiographic features (opacities, infiltrates) that ImageNet weights lack.
+Stage 2: Weight Extraction (Backbone Transplant)
+Remove classification head
+Freeze / partially fine-tune backbone
+Obtain domain-specific embedding network
 
-### Stage 3: The Few-Shot Learner (Meta-Learning)
-We use the transplanted backbone in a **Prototypical Network**.
-* **Task:** 2-Way, 10-Shot Classification (COVID-19 vs. Tuberculosis).
-* **Metric:** Cosine Similarity.
-* **Training:** Episodic training on base classes, tested on novel classes.
+Stage 3: Few-Shot Learning (Meta-Learning)
+Model: Prototypical Network
+Task: 2-Way, 10-Shot evaluation on novel diseases
+Metric: Cosine Similarity
 
-## 📂 Dataset Strategy
-The project aggregates data from four major sources:
-* **NIH ChestX-ray14** (Base classes)
-* **RSNA Pneumonia Challenge** (Base classes)
-* **COVID-19 Radiography Database** (Novel class)
-* **Tuberculosis Chest X-ray Database** (Novel class)
+Training: Episodic meta-learning on base classes
 
-## 🛠️ Installation & Usage
-
-### 1. Clone the Repo
-```bash
-git clone [https://github.com/YOUR_USERNAME/Hybrid-FSL-ChestXRay.git](https://github.com/YOUR_USERNAME/Hybrid-FSL-ChestXRay.git)
+Datasets Used
+Source	Purpose
+NIH ChestX-ray14	Base classes
+RSNA Pneumonia Dataset	Base classes
+COVID-19 Radiography Dataset	Novel class
+Tuberculosis CXR Dataset	Novel class
+Installation & Usage
+1. Clone the Repository
+git clone https://github.com/YOUR_USERNAME/Hybrid-FSL-ChestXRay.git
 cd Hybrid-FSL-ChestXRay
 
-### 2. Install Dependencies
-'''bash
+2. Install Requirements
 pip install -r requirements.txt
 
-### 3. Data Setup
-'''bash
-Clean and standardise images
+3. Preprocess the Datasets
 python src/preprocess.py
 
-### Results
+4. Train the Specialist Model
+python train_specialist.py
 
-| Model               | Metric     | Backbone Weights       | Accuracy (Novel Classes) |
-|--------------------|------------|-------------------------|---------------------------|
-| Prototypical Net   | Euclidean  | ImageNet                | 61.43% ± 0.65%            |
-| Hybrid ProtoNet    | Cosine     | Imbalanced-Pretrained  | 91.6% (Target)             |
+5. Run Few-Shot Learning
+python train_fsl.py
 
+| Model            | Metric    | Backbone Weights      | Accuracy (Novel Classes) |
+| ---------------- | --------- | --------------------- | ------------------------ |
+| Prototypical Net | Euclidean | ImageNet              | 61.43% ± 0.65%           |
+| Hybrid ProtoNet  | Cosine    | Imbalanced-Pretrained | 91.6%                    |
 
 
